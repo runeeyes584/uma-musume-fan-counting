@@ -109,8 +109,17 @@ export const saveData = (data) => {
             notificationEnabled: payload.stats.notificationEnabled ? 1 : 0,
             notificationTime: payload.stats.notificationTime
         });
+        // 1. Get current DB IDs to identify deletions
+        const currentIds = db.prepare('SELECT id FROM history').all().map((row) => row.id);
+        const newIds = payload.history.map((h) => h.id);
+        // 2. Delete items not in the new payload
+        const toDelete = currentIds.filter((id) => !newIds.includes(id));
+        const deleteStmt = db.prepare('DELETE FROM history WHERE id = ?');
+        for (const id of toDelete) {
+            deleteStmt.run(id);
+        }
+        // 3. Insert new items
         for (const item of payload.history) {
-            // Check existence - simplistic approach for "sync"
             const exists = db.prepare('SELECT 1 FROM history WHERE id = ?').get(item.id);
             if (!exists) {
                 db.prepare('INSERT INTO history (id, name, fan, date, created_at) VALUES (?, ?, ?, ?, ?)').run(item.id, item.name, item.fan, item.date, item.id);
