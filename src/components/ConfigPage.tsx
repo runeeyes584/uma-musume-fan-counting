@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Upload, Save } from 'lucide-react';
+import { Trash2, Save } from 'lucide-react';
 import type { UserStats, HistoryItem } from '../types';
+import avatarImg from '../assets/avt.jpg';
+import bannerImg from '../assets/banner.png';
 
 interface ConfigPageProps {
     stats: UserStats;
@@ -11,6 +13,7 @@ interface ConfigPageProps {
 }
 
 export const ConfigPage: React.FC<ConfigPageProps> = ({ stats, history, onSaveConfig, onDeleteHistory, onNewWeek }) => {
+    // ... existing state and effects ...
     const [formStats, setFormStats] = useState<UserStats>(stats);
 
     // Sync state if props change (loading data or external updates)
@@ -46,22 +49,16 @@ export const ConfigPage: React.FC<ConfigPageProps> = ({ stats, history, onSaveCo
             <div style={{ display: 'flex', gap: '20px', height: '300px' }}>
                 {/* Avatar Upload */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <div style={{ flex: 1, backgroundColor: '#334155', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ color: '#94a3b8' }}>Avatar</span>
+                    <div style={{ flex: 1, backgroundColor: '#334155', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                        <img src={avatarImg} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
-                    <button className="btn-outline" style={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
-                        <Upload size={16} /> Upload avatar
-                    </button>
                 </div>
 
                 {/* Parent Uma Upload */}
                 <div style={{ flex: 2, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <div style={{ flex: 1, backgroundColor: '#334155', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ color: '#94a3b8' }}>Parent Uma</span>
+                    <div style={{ flex: 1, backgroundColor: '#334155', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                        <img src={bannerImg} alt="Parent Uma" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
-                    <button className="btn-outline" style={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
-                        <Upload size={16} /> Upload your UMA Parent
-                    </button>
                 </div>
 
                 {/* User Info Details - Editable */}

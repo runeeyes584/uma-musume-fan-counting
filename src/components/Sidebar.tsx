@@ -1,6 +1,7 @@
 import React from 'react';
 import { Copy } from 'lucide-react';
 import type { UserStats } from '../types';
+import avatarImg from '../assets/avt.jpg';
 
 interface SidebarProps {
     stats: UserStats;
@@ -29,10 +30,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ stats, progress, onNavigate })
                 color: 'white',
                 fontSize: '0.9rem',
                 textAlign: 'center',
-                padding: '10px',
-                border: '2px dashed #94a3b8'
+                padding: '0',
+                border: '2px dashed #94a3b8',
+                overflow: 'hidden'
             }}>
-                This is awesome avatar
+                <img src={avatarImg} alt="User Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
 
             {/* Navigation Buttons */}

@@ -8,67 +8,10 @@ export interface ParsedStats {
     date?: string;
 }
 
-// Preprocess image to improve OCR accuracy
-// Converts to grayscale and increases contrast
-const preprocessImage = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-            img.src = e.target?.result as string;
-        };
-        reader.onerror = reject;
-
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-                resolve(img.src); // Fallback to original
-                return;
-            }
-
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-
-            // Get image data
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
-
-            // Simple Grayscale & High Contrast
-            for (let i = 0; i < data.length; i += 4) {
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                // Luminance
-                const gray = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-
-                // Binarize / High Contrast threshold
-                // const val = gray > 180 ? 255 : 0; 
-
-                data[i] = gray;
-                data[i + 1] = gray;
-                data[i + 2] = gray;
-            }
-
-            ctx.putImageData(imageData, 0, 0);
-            resolve(canvas.toDataURL('image/jpeg'));
-        };
-    });
-};
-
 export const processImage = async (file: File): Promise<ParsedStats> => {
     try {
         // Run OCR
-        // We might want to pass the original file if preprocessing is risky without testing, 
-        // but preprocessing usually helps. Let's try raw Tesseract first with better Regex,
-        // as the user said "Can you handle it in logic?".
-        // If the user said it failed, maybe the text wasn't recognized AT ALL. 
-        // Let's try to trust Tesseract's internal binarization but improve the regex first.
-
-        // Use preprocess:
-        // const processedImageSrc = await preprocessImage(file);
+        // We trust Tesseract's internal binarization + our regex logic.
 
         const { data: { text } } = await Tesseract.recognize(
             file,
@@ -139,12 +82,6 @@ const parseStats = (text: string): ParsedStats => {
         if (parts.length > 1) {
             stats.name = parts[1].trim();
         }
-    } else {
-        // Fallback: Look for "Epithet" lines? 
-        // Or just take the first line that isn't empty, often the title/name is top.
-        // But in the screenshot, "Umamusume Details" is top.
-        // "Rice Shower" is large text. 
-        // Let's rely on the bracket logic for now as it's most distinctive for this game.
     }
 
     return stats;

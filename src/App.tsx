@@ -25,20 +25,39 @@ function App() {
   });
 
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Load data on load
   useEffect(() => {
     const load = async () => {
       if (window.electronAPI) {
-        const data = await window.electronAPI.loadData();
-        if (data) {
-          if (data.stats) setStats(data.stats);
-          if (data.history) setHistory(data.history);
+        try {
+          const data = await window.electronAPI.loadData();
+          if (data) {
+            if (data.stats) setStats(data.stats);
+            if (data.history) setHistory(data.history);
+          }
+        } catch (error) {
+          console.error("Failed to load data", error);
+        } finally {
+          setIsLoaded(true);
         }
+      } else {
+        setIsLoaded(true);
       }
     };
     load();
   }, []);
+
+  // Auto-save on data change
+  useEffect(() => {
+    // Only save if data has been loaded to avoid overwriting DB with initial empty state
+    if (!isLoaded) return;
+
+    if (window.electronAPI) {
+      window.electronAPI.saveData({ history, stats });
+    }
+  }, [history, stats, isLoaded]);
 
   const handleSave = async (data: FormData) => {
     // Update History
@@ -51,20 +70,13 @@ function App() {
     const newHistory = [newItem, ...history];
     setHistory(newHistory);
 
-    // Update Stats (excluding totalFan which is "Begin fan")
+    // Update Stats
     const newStats = {
       ...stats,
       totalRaces: stats.totalRaces + data.totalRaces,
-      careers: stats.careers + 1 // Increment Careers on new entry
-      // Note: If totalWins is also cumulative, add logic here. 
-      // Assuming existing logic was correct for races/wins.
+      careers: stats.careers + 1
     };
     setStats(newStats);
-
-    // Trigger Save IPC
-    if (window.electronAPI) {
-      await window.electronAPI.saveData({ history: newHistory, stats: newStats });
-    }
   };
 
   const handleDeleteHistory = async (id: number) => {
@@ -73,13 +85,9 @@ function App() {
 
     const newStats = {
       ...stats,
-      careers: Math.max(0, stats.careers - 1) // Decrement Careers on delete
+      careers: Math.max(0, stats.careers - 1)
     };
     setStats(newStats);
-
-    if (window.electronAPI) {
-      await window.electronAPI.saveData({ history: newHistory, stats: newStats });
-    }
   };
 
   const handleExport = () => {
@@ -91,11 +99,6 @@ function App() {
     // Update local state
     const updatedStats = { ...stats, ...newStats };
     setStats(updatedStats);
-
-    // Save to DB
-    if (window.electronAPI) {
-      await window.electronAPI.saveData({ history, stats: updatedStats });
-    }
   };
 
   // Calculate Derived Stats for Sidebar
@@ -119,10 +122,6 @@ function App() {
     };
     setStats(newStats);
     setHistory([]);
-
-    if (window.electronAPI) {
-      await window.electronAPI.saveData({ history: [], stats: newStats });
-    }
   };
 
   return (

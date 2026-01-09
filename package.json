@@ -40,5 +40,24 @@
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",
     "wait-on": "^9.0.3"
+  },
+  "build": {
+    "appId": "com.aprojectex.app",
+    "productName": "Uma Musume Fan Counting",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

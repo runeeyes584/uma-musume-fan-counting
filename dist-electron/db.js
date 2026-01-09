@@ -18,7 +18,9 @@ db.exec(`
     goal_for_week INTEGER,
     email TEXT,
     notification_enabled INTEGER DEFAULT 0,
-    notification_time TEXT
+    notification_time TEXT,
+    avatar_path TEXT,
+    parent_uma_path TEXT
   );
 
   CREATE TABLE IF NOT EXISTS history (
@@ -33,11 +35,19 @@ db.exec(`
 try {
     db.prepare('ALTER TABLE user_data ADD COLUMN notification_enabled INTEGER DEFAULT 0').run();
 }
-catch (e) { /* Column likely exists */ }
+catch (e) { }
 try {
     db.prepare('ALTER TABLE user_data ADD COLUMN notification_time TEXT').run();
 }
-catch (e) { /* Column likely exists */ }
+catch (e) { }
+try {
+    db.prepare('ALTER TABLE user_data ADD COLUMN avatar_path TEXT').run();
+}
+catch (e) { }
+try {
+    db.prepare('ALTER TABLE user_data ADD COLUMN parent_uma_path TEXT').run();
+}
+catch (e) { }
 // Initialize default user if not exists
 const initStmt = db.prepare("INSERT OR IGNORE INTO user_data (id, name, total_fan) VALUES (1, 'Kaleidoscope', 0)");
 initStmt.run();

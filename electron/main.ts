@@ -8,8 +8,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const require = createRequire(import.meta.url);
 
-// ... (window creation code stays same)
-
 // IPC Handlers
 ipcMain.handle('get-version', () => app.getVersion());
 
@@ -32,7 +30,6 @@ ipcMain.handle('load-data', async () => {
         return null;
     }
 });
-
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -80,5 +77,3 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
-
-
